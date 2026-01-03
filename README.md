@@ -1,39 +1,65 @@
-# Ansible-VM-Health-Monitoring-Project
+# Ansible VM Health Monitoring Project
 
-## Pre-requesites:
+This project demonstrates how to use Ansible with AWS Dynamic Inventory to manage and monitor EC2 virtual machines automatically.
+It dynamically discovers EC2 instances based on tags, connects via SSH, and runs playbooks for health checks or automation tasks.
 
--Update the System
+## Project Features
 
+Dynamic AWS EC2 inventory using Ansible
+
+Automatic EC2 discovery based on tags
+
+Secure SSH access using key-based authentication
+
+Virtual environment for dependency isolation
+
+Scalable and production-ready setup
+
+## Prerequisites
+
+Ubuntu Linux (20.04 or later recommended)
+
+AWS Account with EC2 instances running
+
+IAM user with EC2 read/tag permissions
+
+Python 3.8+
+
+SSH key pair for EC2 access
+
+## Step 1: Update the System
 ```
 sudo apt update && sudo apt upgrade -y
-
 ```
--Add the Ansible PPA
-
-Ansible provides an official maintained PPA (for latest versions):
-
+## Step 2: Install Ansible
+Add Ansible Official PPA
 ```
 sudo add-apt-repository --yes --update ppa:ansible/ansible
 ```
-
--Install Ansible
- 
-``` 
+## Install Ansible
+```
 sudo apt install ansible -y
 ```
 
-## Install AWS CLI
-
+## Verify installation:
+```
+ansible --version
+```
+## Step 3: Install AWS CLI
 ```
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-sudo apt install unzip
+sudo apt install unzip -y
 unzip awscliv2.zip
 sudo ./aws/install
-aws configure
-
 ```
 
-## Tagging Script:
+## Configure AWS credentials:
+```
+aws configure
+```
+## Step 4: EC2 Auto-Tagging Script
+
+This script tags all running EC2 instances with env=dev and assigns sequential names.
 ```
 #!/bin/bash
 
@@ -53,28 +79,35 @@ for id in "${sorted_ids[@]}"; do
   ((counter++))
 done
 ```
-## ansible.cfg file modifications:
+
+## Make executable:
+```
+chmod +x tag_instances.sh
+./tag_instances.sh
+```
+## Step 5: Ansible Configuration
+
+Edit ansible.cfg:
 ```
 [defaults]
 inventory = inventory/aws_ec2.yml
 remote_user = ubuntu
-private_key_file = /home/ubuntu/devops-key.pem
+private_key_file = /home/ubuntu/devops-key.pem # add your key path
 host_key_checking = False
 timeout = 30
 
 [ssh_connection]
 ssh_args = -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-
 ```
-## Dynamic Inventory:
+## Step 6: AWS Dynamic Inventory Configuration
 
--inventory/aws_ec2.yml 
+Create file: inventory/aws_ec2.yml
 ```
 ---
 plugin: amazon.aws.aws_ec2
 
 regions:
-- eu-north-1
+  - eu-north-1
 
 filters:
   "tag:env": dev
@@ -84,49 +117,48 @@ compose:
   ansible_host: public_ip_address
 
 keyed_groups:
-- key: tags.Name
-  prefix: name
-- key: tags.env
-  prefix: env
-                              
+  - key: tags.Name
+    prefix: name
+  - key: tags.env
+    prefix: env
 ```
+## Step 7: Python Virtual Environment Setup
 
-
-## Install venv module if not already present
+Install virtual environment support:
 ```
 sudo apt install python3-venv -y
 ```
-## Create a virtual environment
+
+## Create and activate virtual environment:
 ```
 python3 -m venv ansible-env
-```
-## Activate it
-```
 source ansible-env/bin/activate
+
 ```
-## Install required Python packages
+## Install required Python packages:
 ```
 pip install boto3 botocore docker
 ```
-## check this point:
+## Step 8: Install Required Ansible Collection
 ```
 ansible-galaxy collection install amazon.aws
-```
-```
-ansible-inventory -i inventory/aws_ec2.yaml --graph
-```
 
-## Copy Pub Key to access VM via ssh:
+```
+## Verify dynamic inventory:
+```
+ansible-inventory -i inventory/aws_ec2.yml --graph
+```
+## Step 9: Copy SSH Public Key to EC2 Instances
+
+This script injects your local public SSH key into all discovered EC2 instances.
 ```
 #!/bin/bash
 
-# Define vars
-PEM_FILE="your-key.pem" # add your key
+PEM_FILE="your-key.pem"
 PUB_KEY=$(cat ~/.ssh/id_rsa.pub)
-USER="ubuntu"  # or ec2-user
-INVENTORY_FILE="inventory/aws_ec2.yaml"
+USER="ubuntu"
+INVENTORY_FILE="inventory/aws_ec2.yml"
 
-# Extract hostnames/IPs from dynamic inventory
 HOSTS=$(ansible-inventory -i $INVENTORY_FILE --list | jq -r '._meta.hostvars | keys[]')
 
 for HOST in $HOSTS; do
@@ -139,8 +171,7 @@ for HOST in $HOSTS; do
   "
 done
 ```
-## Create the Project & Run below Command to execute
+## Step 10: Run the Ansible Playbook
 ```
-ansible-playbook calling_playbook.yaml 
-
+ansible-playbook calling_playbook.yaml
 ```
