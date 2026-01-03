@@ -7,7 +7,7 @@
 ```
 sudo apt update && sudo apt upgrade -y
 
-``
+```
 -Add the Ansible PPA
 
 Ansible provides an official maintained PPA (for latest versions):
@@ -116,7 +116,7 @@ ansible-galaxy collection install amazon.aws
 ansible-inventory -i inventory/aws_ec2.yaml --graph
 ```
 
-## Copy Pub Key to access via ssh:
+## Copy Pub Key to access VM via ssh:
 ```
 #!/bin/bash
 
