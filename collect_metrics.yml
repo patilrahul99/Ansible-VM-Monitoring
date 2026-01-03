@@ -1,0 +1,42 @@
+---
+- name: Collect VM metrics
+  hosts: env_dev
+  become: true
+  gather_facts: true
+
+  tasks:
+  - name: Install sysstat (for mpstat) - Debian
+    apt:
+      name: sysstat
+      state: present
+      update_cache: yes
+    when: ansible_os_family == "Debian"
+
+  - name: Install sysstat (RedHat/CentOS)
+    yum:
+      name: sysstat
+      state: present
+    when: ansible_os_family == "RedHat"
+
+  - name: Get CPU usage via mpstat
+    shell: mpstat 1 1 | awk '/Average/ {print 100 - $NF}'
+    register: cpu_usage
+    changed_when: false
+
+  - name: Get memory usage
+    shell: free | awk '/Mem/{printf "%.2f", $3/$2 * 100.0}'
+    register: mem_usage
+    changed_when: false
+
+  - name: Get disk usage
+    shell: df / | awk 'NR==2 {print $5}' | tr -d '%'
+    register: disk_usage
+    changed_when: false
+
+  - name: Set metrics fact
+    set_fact:
+      vm_metrics:
+        hostname: "{{ inventory_hostname }}"
+        cpu: "{{ cpu_usage.stdout | float }}"
+        mem: "{{ mem_usage.stdout | float }}"
+        disk: "{{ disk_usage.stdout | float }}"

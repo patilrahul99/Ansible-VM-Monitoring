@@ -1,0 +1,6 @@
+---
+smtp_server: "smtp.gmail.com"
+smtp_port: 587
+email_user: "youremail@gmail.com"
+email_pass: "enter gmail app password"
+alert_recipient: "youremail@gmail.com"
