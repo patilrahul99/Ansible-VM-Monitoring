@@ -3,6 +3,11 @@
 This project demonstrates how to use Ansible with AWS Dynamic Inventory to manage and monitor EC2 virtual machines automatically.
 It dynamically discovers EC2 instances based on tags, connects via SSH, and runs playbooks for health checks or automation tasks.
 
+## Architecture Diagram:
+
+<img width="1132" height="1070" alt="image" src="https://github.com/user-attachments/assets/e35db4fb-a04d-440e-93a4-a5cf68ef770c" />
+
+
 ## Project Features
 
 Dynamic AWS EC2 inventory using Ansible
