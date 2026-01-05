@@ -5,7 +5,8 @@ It dynamically discovers EC2 instances based on tags, connects via SSH, and runs
 
 ## Architecture Diagram:
 
-<img width="1132" height="1070" alt="image" src="https://github.com/user-attachments/assets/e35db4fb-a04d-440e-93a4-a5cf68ef770c" />
+<img width="1319" height="754" alt="Ansible vm monitoring" src="https://github.com/user-attachments/assets/fc9e2c8a-bfbc-4cf4-bb94-4c844240c02c" />
+
 
 
 ## Project Features
